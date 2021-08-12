@@ -1,6 +1,6 @@
 {
   "name": "tree-view",
-  "version": "0.228.2",
+  "version": "0.229.1",
   "main": "./lib/main",
   "description": "Explore and open files in the current project.",
   "repository": "https://github.com/atom/tree-view",
@@ -94,6 +94,11 @@
       "type": "boolean",
       "default": false,
       "description": "When opening a file, always focus an already-existing view of the file even if it's in another pane."
+    },
+    "hiddenOnStartup": {
+      "type": "boolean",
+      "default": false,
+      "description": "When Atom is opened, the view is hidden."
     }
   }
 }

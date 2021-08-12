@@ -2688,6 +2688,8 @@ describe "TreeView", ->
             dotFileView.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 1}))
 
           runs ->
+            workspaceElement = atom.views.getView(atom.workspace)
+            jasmine.attachToDOM(workspaceElement)
             atom.commands.dispatch(treeView.element, "tree-view:duplicate")
             copyDialog = atom.workspace.getModalPanels()[0].getItem()
 
@@ -2710,6 +2712,8 @@ describe "TreeView", ->
             dotFileView.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 1}))
 
           runs ->
+            workspaceElement = atom.views.getView(atom.workspace)
+            jasmine.attachToDOM(workspaceElement)
             atom.commands.dispatch(treeView.element, "tree-view:duplicate")
             copyDialog = atom.workspace.getModalPanels()[0].getItem()
 
@@ -2732,6 +2736,8 @@ describe "TreeView", ->
             atom.workspace.open('tree-view.js')
 
           runs ->
+            workspaceElement = atom.views.getView(atom.workspace)
+            jasmine.attachToDOM(workspaceElement)
             editorElement = atom.views.getView(atom.workspace.getCenter().getActivePaneItem())
             atom.commands.dispatch(editorElement, "tree-view:duplicate")
             copyDialog = atom.workspace.getModalPanels()[0].getItem()
@@ -5244,6 +5250,7 @@ describe 'Icon class handling', ->
     waitForPackageActivation()
 
     runs ->
+      jasmine.attachToDOM(workspaceElement)
       treeView = atom.packages.getActivePackage("tree-view").mainModule.getTreeViewInstance()
       files = workspaceElement.querySelectorAll('li[is="tree-view-file"]')
 
@@ -5254,3 +5261,42 @@ describe 'Icon class handling', ->
 
       files = workspaceElement.querySelectorAll('li[is="tree-view-file"]')
       expect(files[0].fileName.className).toBe('name icon icon-file-text')
+
+describe 'Hidden on startup', ->
+
+  describe 'When not configured', ->
+    it 'defaults to false', ->
+      expect(atom.config.get("tree-view.hiddenOnStartup")).toBeFalsy()
+
+  describe 'When set to true', ->
+  it 'hides the tree view pane on startup', ->
+    waitsForPromise ->
+      # First deactivate the package so that we can start from scratch
+      atom.packages.deactivatePackage('tree-view')
+
+    runs ->
+      atom.config.set("tree-view.hiddenOnStartup", true)
+
+    # activate the package and wait for focus to settle on editor
+    beforeEach ->
+      waitsForPromise ->
+        atom.packages.activatePackage('tree-view')
+      waitsForPromise ->
+        atom.workspace.open()
+
+    runs ->
+      expect(atom.workspace.getLeftDock().isVisible()).toBe(false)
+
+  describe 'When set to false', ->
+    it 'allows the pane to show up as normal', ->
+      waitsForPromise ->
+        # First deactivate the package so that we can start from scratch
+        atom.packages.deactivatePackage('tree-view')
+
+      runs ->
+        atom.config.set("tree-view.hiddenOnStartup", false)
+
+      waitForPackageActivation()
+
+      runs ->
+        expect(atom.workspace.getLeftDock().isVisible()).toBe(true)
